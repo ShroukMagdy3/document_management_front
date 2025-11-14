@@ -1,0 +1,78 @@
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { getAllDocuments } from "../../api/documents";
+import WorkspaceHeader from "../workspaceHeader/workspaceHeader";
+import UploadMenu from "../upload/upload";
+import { ClipLoader } from "react-spinners";
+import toast from "react-hot-toast";
+interface workspace {
+    _id:string,
+    name:string
+    createdAt:string
+}
+
+
+export default function WorkspaceProfile() {
+  const [workspace, setWorkspace] = useState<workspace >();
+  const [documents, setDocuments] = useState<[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [docsLoading, setDocsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWorkspace = async () => {
+      try {
+        const { data } = await axios.get(
+          "http://localhost:3000/api/v1/workspaces/getMyWorkspace",
+          { headers: { authorization: `bearer ${localStorage.getItem("accessToken")}` } }
+        );
+        setWorkspace(data.workspace);
+      } catch (err) {
+        console.error(err);
+        toast.error("error")
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWorkspace();
+  }, []);
+
+  useEffect(() => {
+    if (!workspace?._id) return;
+    const fetchDocs = async () => {
+      setDocsLoading(true);
+      try {
+        const { data } = await getAllDocuments();
+          setDocuments(data.docs);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setDocsLoading(false);
+      }
+    };
+    fetchDocs();
+  }, [workspace]);
+
+  const handleUpdate = async (newName: string) => {
+      const { data } = await axios.patch(
+        `http://localhost:3000/api/v1/workspaces/update/${workspace?._id}`,
+        { name: newName },
+        { headers: { authorization: `bearer ${localStorage.getItem("accessToken")}` } }
+      );
+      setWorkspace((prev) => {
+  if (!prev) return prev;
+  return { ...prev, name: newName };
+});
+  };
+
+  if (loading)
+    return <div className="flex justify-center items-center h-full min-h-[200px]">
+        <ClipLoader size={50} color="#fbbf24" />
+      </div>
+  return (
+    <div className="min-h-screen  rounded-lg  text-white flex flex-col items-center justify-center">
+      {workspace && <WorkspaceHeader workspaceName={workspace.name} createdAt={workspace.createdAt} onUpdate={handleUpdate} />}
+     { workspace && <UploadMenu workspaceId={workspace?._id}  />}
+      
+    </div>
+  );
+}
