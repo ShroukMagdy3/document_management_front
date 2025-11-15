@@ -2,8 +2,10 @@ import React from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 export default function Logout() {
+  const navigate = useNavigate()
 
 
 const handleLogout = async () => {
@@ -18,7 +20,7 @@ const handleLogout = async () => {
       }
     );
     localStorage.removeItem("accessToken");
-    window.location.href = "/signin";
+    navigate("/signin")
     toast.success("Logged!!")
   } catch (error) {
     console.error("Logout failed:", error);
