@@ -56,68 +56,73 @@ export default function UploadMenu({ workspaceId }: { workspaceId: string }) {
       }
     } catch (err) {
       toast.error("Upload failed please try in another time ");
-      console.log(err);
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-6 mt-4">
-      <select
-        value={selectedType}
-        onChange={(e) => setSelectedType(e.target.value)}
-        className="p-2 rounded-md bg-gray-800 text-white"
-      >
-        <option value="">Select File Type</option>
-        <option value="image">Image</option>
-        <option value="pdf">PDF</option>
-        <option value="video">Video</option>
-        <option value="audio">Audio</option>
-      </select>
+    <>
+  <div className="w-full flex flex-col gap-6 mt-4 items-end px-2">
 
-      <button
-        onClick={() => {
-          if (!selectedType) return toast.error("Select File Type First");
-          inputRef.current?.click();
-        }}
-        disabled={isUploading}
-        className={`relative overflow-hidden group flex items-center justify-center gap-2 px-8 py-3 rounded-full font-semibold text-gray-900 transition-all
-    ${
-      isUploading
-        ? "bg-amber-400 opacity-70 cursor-not-allowed"
-        : "bg-amber-500 hover:bg-amber-600 hover:shadow-amber-400/50 hover:shadow-lg active:scale-95"
-    }`}
-      >
-        <UploadCloud
-          size={20}
-          className={`transition-transform ${
-            isUploading
-              ? "text-gray-800"
-              : "text-gray-900 group-hover:text-gray-100 group-hover:-translate-y-0.5"
-          }`}
-        />
+  <select
+    value={selectedType}
+    onChange={(e) => setSelectedType(e.target.value)}
+    className="p-2 rounded-lg bg-gray-800 text-white border border-gray-700 w-56"
+  >
+    <option value="">Select File Type</option>
+    <option value="image">Image</option>
+    <option value="pdf">PDF</option>
+    <option value="video">Video</option>
+    <option value="audio">Audio</option>
+  </select>
 
-        <span
-          className={`transition-all ${
-            isUploading ? "text-gray-800" : "group-hover:text-gray-100"
-          }`}
-        >
-          {isUploading ? "Uploading..." : "Upload File"}
-        </span>
+  <button
+    onClick={() => {
+      if (!selectedType) return toast.error("Select File Type First");
+      inputRef.current?.click();
+    }}
+    disabled={isUploading}
+    className={`
+      group relative flex items-center gap-3 px-14 py-3 
+      rounded-xl font-semibold transition-all duration-300
+      ${isUploading
+        ? "bg-amber-400 opacity-60 cursor-not-allowed"
+        : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg hover:shadow-amber-500/30 active:scale-95"
+      }
+    `}
+  >
+    <UploadCloud
+      size={22}
+      className={`transition-transform ${
+        isUploading
+          ? "text-gray-800"
+          : "text-gray-900 group-hover:-translate-y-0.5 group-hover:text-white"
+      }`}
+    />
 
-        {!isUploading && (
-          <span className="absolute inset-0 rounded-full bg-amber-300 opacity-0 group-hover:opacity-10 transition-opacity"></span>
-        )}
-      </button>
+    <span
+      className={`transition-colors ${
+        isUploading ? "text-gray-900" : "text-gray-900 group-hover:text-white"
+      }`}
+    >
+      {isUploading ? "Uploading..." : "Upload File"}
+    </span>
 
-      <input
-        type="file"
-        ref={inputRef}
-        className="hidden"
-        onChange={handleUpload}
-      />
+    {!isUploading && (
+      <span className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity"></span>
+    )}
+  </button>
+
+  <input
+    type="file"
+    ref={inputRef}
+    className="hidden"
+    onChange={handleUpload}
+  />
+</div>
+
       <DocumentList key={reloadFlag} workspaceId={workspaceId} />
-    </div>
+    </>
   );
 }

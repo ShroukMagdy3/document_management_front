@@ -2,11 +2,12 @@
 import axios from "axios";
 // import toast from "react-hot-toast";
 
-const BASE = "http://localhost:3000/api/v1/workspaces";
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 export const uploadImage = (file: File) => {
   const form = new FormData();
   form.append("attachment", file);
-  return axios.post("http://localhost:3000/api/v1/workspaces/documents/uploadImage", form ,{
+  return axios.post(`${VITE_API_URL}/api/v1/workspaces/documents/uploadImage`, form ,{
     headers:{
       authorization :`bearer ${localStorage.getItem("accessToken")}`
     }
@@ -16,7 +17,7 @@ export const uploadImage = (file: File) => {
 export const uploadPdf = (file: File) => {
   const form = new FormData();
   form.append("pdf", file);
-  return axios.post("http://localhost:3000/api/v1/workspaces/documents/uploadPdf", form,{
+  return axios.post(`${VITE_API_URL}/api/v1/workspaces/documents/uploadPdf`, form,{
     headers:{
       authorization :`bearer ${localStorage.getItem("accessToken")}`,
     }
@@ -26,7 +27,7 @@ export const uploadPdf = (file: File) => {
 export const uploadVideo = (file: File) => {
   const form = new FormData();
   form.append("attachment", file);
-  return axios.post("http://localhost:3000/api/v1/workspaces/documents/uploadVideo", form,{
+  return axios.post(`${VITE_API_URL}/api/v1/workspaces/documents/uploadVideo`, form,{
     headers:{
       authorization :`bearer ${localStorage.getItem("accessToken")}`,
        "Content-Type": "multipart/form-data" 
@@ -38,7 +39,7 @@ export const uploadVideo = (file: File) => {
 export const uploadAudio = (file: File) => {
   const form = new FormData();
   form.append("attachment", file);
-  return axios.post("http://localhost:3000/api/v1/workspaces/documents/uploadAudio", form,{
+  return axios.post(`${VITE_API_URL}/api/v1/workspaces/documents/uploadAudio`, form,{
     headers:{
       authorization :`bearer ${localStorage.getItem("accessToken")}`,
        "Content-Type": "multipart/form-data" 
@@ -50,7 +51,7 @@ export const uploadAudio = (file: File) => {
 
 export const getAllDocuments = async () => {
   return axios.get(
-    `http://localhost:3000/api/v1/workspaces/documents/getAll`,
+    `${VITE_API_URL}/api/v1/workspaces/documents/getAll`,
     {
       headers: {
         authorization: `bearer ${localStorage.getItem("accessToken")}`,
@@ -64,7 +65,7 @@ export const getAllDocuments = async () => {
 
 export const updateDocumentName = async (documentId: string, newName: string) => {
   const { data } = await axios.patch(
-    `${BASE}/documents/update/${documentId}`,
+    `${VITE_API_URL}/api/v1/workspaces/documents/update/${documentId}`,
     { name: newName },
     {
        headers: {
@@ -80,7 +81,7 @@ export const updateDocumentName = async (documentId: string, newName: string) =>
 
 export const deleteDocument = async (documentId: string) => {
   const { data } = await axios.delete(
-    `${BASE}/documents/delete/${documentId}`,
+    `${VITE_API_URL}/api/v1/workspaces/documents/delete/${documentId}`,
     {
       headers: {
         authorization: `bearer ${localStorage.getItem("accessToken")}`,
@@ -93,7 +94,7 @@ export const deleteDocument = async (documentId: string) => {
 
 export const softDeleteDocument = async (documentId: string) => {
   const { data } = await axios.patch(
-    `${BASE}/documents/freeze/${documentId}`,
+    `${VITE_API_URL}/api/v1/workspaces/documents/freeze/${documentId}`,
     {},
     {
       headers: {
@@ -106,7 +107,7 @@ export const softDeleteDocument = async (documentId: string) => {
 
 
 export const getCycleBinDocuments = async () => {
-  const res = await axios.get(`${BASE}/documents/cycleBin` ,{
+  const res = await axios.get(`${VITE_API_URL}/api/v1/workspaces/documents/cycleBin` ,{
     headers:{
       authorization:`bearer ${localStorage.getItem("accessToken")}`
     }
@@ -115,7 +116,7 @@ export const getCycleBinDocuments = async () => {
 };
 
 export const unfreezeDocument = async (docId: string) => {
-  const res = await axios.patch(`${BASE}/documents/unfreeze/${docId}`, 
+  const res = await axios.patch(`${VITE_API_URL}/api/v1/workspaces/documents/unfreeze/${docId}`, 
      {},
     {headers:{
       authorization:`bearer ${localStorage.getItem("accessToken")}`
@@ -133,7 +134,7 @@ export const searchDocuments = async (params: { name?: string; type?: string }) 
   if (params.type) query.append("type", params.type);
 
   const res = await axios.get(
-    `${BASE}documents/search?${query.toString()}`,
+    `${VITE_API_URL}documents/search?${query.toString()}`,
     {
       headers: {
         authorization: `bearer ${localStorage.getItem("accessToken")}`,

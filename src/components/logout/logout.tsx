@@ -2,14 +2,14 @@ import React from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { LogOut } from "lucide-react";
-
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 export default function Logout() {
 
 
 const handleLogout = async () => {
   try {
     await axios.post(
-      "http://localhost:3000/api/v1/users/logout",
+      `${VITE_API_URL}/api/v1/users/logout`,
       {},
       {
         headers: {

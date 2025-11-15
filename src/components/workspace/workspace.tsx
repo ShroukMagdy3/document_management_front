@@ -11,6 +11,7 @@ interface workspace {
     createdAt:string
 }
 
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function WorkspaceProfile() {
   const [workspace, setWorkspace] = useState<workspace >();
@@ -22,7 +23,7 @@ export default function WorkspaceProfile() {
     const fetchWorkspace = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:3000/api/v1/workspaces/getMyWorkspace",
+          `${VITE_API_URL}/api/v1/workspaces/getMyWorkspace`,
           { headers: { authorization: `bearer ${localStorage.getItem("accessToken")}` } }
         );
         setWorkspace(data.workspace);
@@ -54,7 +55,7 @@ export default function WorkspaceProfile() {
 
   const handleUpdate = async (newName: string) => {
       const { data } = await axios.patch(
-        `http://localhost:3000/api/v1/workspaces/update/${workspace?._id}`,
+        `${VITE_API_URL}/api/v1/workspaces/update/${workspace?._id}`,
         { name: newName },
         { headers: { authorization: `bearer ${localStorage.getItem("accessToken")}` } }
       );
@@ -69,10 +70,10 @@ export default function WorkspaceProfile() {
         <ClipLoader size={50} color="#fbbf24" />
       </div>
   return (
-    <div className="min-h-screen  rounded-lg  text-white flex flex-col items-center justify-center">
+    <div className="min-h-screen  rounded-lg text-white flex flex-col items-center">
       {workspace && <WorkspaceHeader workspaceName={workspace.name} createdAt={workspace.createdAt} onUpdate={handleUpdate} />}
-     { workspace && <UploadMenu workspaceId={workspace?._id}  />}
       
+      { workspace && <UploadMenu workspaceId={workspace?._id}  />}
     </div>
   );
 }

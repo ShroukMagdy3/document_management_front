@@ -13,6 +13,8 @@ interface Document {
   createdAt: string;
 }
 
+
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 export default function DocumentCard({
   doc,
   onDelete,
@@ -49,7 +51,7 @@ export default function DocumentCard({
 
     if (doc.resourceType === "pdf") {
       const link = document.createElement("a");
-      link.href = `http://localhost:3000/api/v1/workspaces/documents/downloadPdf/${doc._id}`;
+      link.href = `${VITE_API_URL}/api/v1/workspaces/documents/downloadPdf/${doc._id}`;
       link.setAttribute("download", doc.name);
       document.body.appendChild(link);
       link.click();
@@ -93,7 +95,7 @@ export default function DocumentCard({
     if (["image", "video", "pdf", "audio"].includes(doc.resourceType)) {
       const url =
         doc.resourceType === "pdf"
-          ? `http://localhost:3000/api/v1/workspaces/documents/openPdf/${doc._id}`
+          ? `${VITE_API_URL}/api/v1/workspaces/documents/openPdf/${doc._id}`
           : doc.secureUrl;
       window.open(url, "_blank");
     } else {
@@ -145,72 +147,69 @@ export default function DocumentCard({
         </div>
       )}
 
-      <div
-        className="bg-gray-800 hover:bg-gray-950 transition-all p-3 rounded-lg flex items-center gap-3 w-full max-w-3xl shadow-md shadow-amber-500 hover:shadow-amber-500/50 cursor-pointer"
-        onClick={handleCardClick}
+     <div
+  className="bg-gray-800 hover:bg-gray-950 transition-all p-3 rounded-lg flex items-center gap-3 w-full max-w-3xl shadow-md shadow-amber-500 hover:shadow-amber-500/50"
+>
+  <img
+    src={getImageSrc()}
+    alt={name}
+    className="w-28 h-28 object-cover rounded cursor-pointer border border-gray-700"
+    onClick={handleCardClick} // الصورة فقط تفتح المعاينة
+  />
+
+  <div className="flex-1 flex flex-col min-w-0">
+    {editing ? (
+      <input
+        autoFocus
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onBlur={saveName}
+        onKeyDown={handleKeyDown}
+        className="bg-gray-700 text-white px-2 py-1 rounded outline-none w-full truncate"
+      />
+    ) : (
+      <span
+        className="text-amber-400 font-semibold cursor-text truncate hover:text-amber-300 transition-colors"
+        onClick={(e) => {
+          e.stopPropagation(); 
+          setEditing(true);
+        }}
       >
-        <img
-          src={getImageSrc()}
-          alt={name}
-          className="w-28 h-28 object-cover rounded cursor-pointer border border-gray-700"
-        />
+        {name}
+      </span>
+    )}
+    <span className="text-sm text-gray-300 truncate">Type: {doc.resourceType}</span>
+    <span className="text-sm text-gray-300 truncate">
+      Uploaded: {new Date(doc.createdAt).toLocaleDateString()}
+    </span>
+  </div>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          {editing ? (
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={saveName}
-              onKeyDown={handleKeyDown}
-              className="bg-gray-700 text-white px-2 py-1 rounded outline-none w-full truncate"
-            />
-          ) : (
-            <span
-              className="text-amber-400 font-semibold cursor-text truncate hover:text-amber-300 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditing(true);
-              }}
-            >
-              {name}
-            </span>
-          )}
-          <span className="text-sm text-gray-300 truncate">Type: {doc.resourceType}</span>
-          <span className="text-sm text-gray-300 truncate">
-            Uploaded: {new Date(doc.createdAt).toLocaleDateString()}
-          </span>
-        </div>
+  <div className="flex gap-2 shrink-0 ml-2">
+    <button
+      onClick={(e) => { e.stopPropagation(); handleDownload(e); }}
+      className="text-gray-200 hover:text-amber-400 transition"
+      title="Download"
+    >
+      <Download size={18} />
+    </button>
 
-        <div className="flex gap-2 shrink-0 ml-2">
-          <button
-            onClick={handleDownload}
-            className="text-gray-200 hover:text-amber-400 transition"
-            title="Download"
-          >
-            <Download size={18} />
-          </button>
+    <button
+      onClick={(e) => { e.stopPropagation(); handleFreeze(); }}
+      className="text-amber-500 hover:text-amber-600 transition"
+      title="Freeze"
+    >
+      <Archive size={18} />
+    </button>
 
-          <button
-            onClick={handleFreeze}
-            className="text-amber-500 hover:text-amber-600 transition"
-            title="Freeze"
-          >
-            <Archive size={18} />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowConfirm(true);
-            }}
-            className="text-red-400 hover:text-red-600 transition"
-            title="Delete"
-          >
-            <Trash size={18} />
-          </button>
-        </div>
-      </div>
+    <button
+      onClick={(e) => { e.stopPropagation(); setShowConfirm(true); }}
+      className="text-red-400 hover:text-red-600 transition"
+      title="Delete"
+    >
+      <Trash size={18} />
+    </button>
+  </div>
+</div>
     </>
   );
 }

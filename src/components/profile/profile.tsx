@@ -13,6 +13,7 @@ type UserProfile = {
   createdAt: Date;
 };
 
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 export default function Profile() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -23,7 +24,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/v1/users/getProfile", {
+        const { data } = await axios.get(`${VITE_API_URL}/api/v1/users/getProfile`, {
           headers: { Authorization: `bearer ${localStorage.getItem("accessToken")}` },
         });
         setUser(data.user);
@@ -45,7 +46,7 @@ export default function Profile() {
     try {
       setLoading(true);
       const { data } = await axios.post(
-        "http://localhost:3000/api/v1/users/uploadProfile",
+        `${VITE_API_URL}/api/v1/users/uploadProfile`,
         formData,
         {
           headers: {
@@ -58,7 +59,6 @@ export default function Profile() {
         setImageUrl(`${data.user.image}?t=${Date.now()}`); 
       }
     } catch (error) {
-      console.error("Error uploading profile image" , error);
       toast.error ("failed in uploading" )
       
     } finally {

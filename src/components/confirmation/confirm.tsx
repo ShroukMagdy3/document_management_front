@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import confirmValidation from "./confirmValidation";
 
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 export default function ConfirmForm() {
   const [inputs, setInput] = useState<confirmFormData>({
     email: "",
@@ -14,7 +16,6 @@ export default function ConfirmForm() {
   });
 
   const [errors, setErrors] = useState<Partial<confirmFormData>>({});
-  // console.log(errors);
   
 
   const [touched, setTouched] = useState<{ email: boolean; otp: boolean }>({
@@ -34,7 +35,7 @@ export default function ConfirmForm() {
     
     if (isValid) {
       axios
-        .post("http://localhost:3000/api/v1/users/confirmEmail", inputs)
+        .post(`${VITE_API_URL}/api/v1/users/confirmEmail`, inputs)
         .then((res) => {
           if (res.data.message === "Confirmed") {
             toast.success("Account Confirmed!");
