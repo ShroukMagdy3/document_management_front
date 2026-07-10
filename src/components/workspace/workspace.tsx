@@ -3,7 +3,13 @@ import WorkspaceHeader from "../workspaceHeader/workspaceHeader";
 import DocumentList from "../documents/documentlist";
 import { ClipLoader } from "react-spinners";
 import toast from "react-hot-toast";
-import { Plus, Trash2, Briefcase, FolderOpen, Sparkles } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Briefcase,
+  FolderOpen,
+  AlertTriangle,
+} from "lucide-react";
 import {
   listWorkspaces,
   createWorkspace,
@@ -11,9 +17,10 @@ import {
   deleteWorkspace,
   type Workspace,
 } from "../../api/workspaces";
-import { getPersistedDocuments } from "../../utils/localDriveStorage";
 
 const LAST_WORKSPACE_KEY = "lastWorkspaceId";
+
+
 
 export default function WorkspaceProfile() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -22,6 +29,7 @@ export default function WorkspaceProfile() {
   const [creating, setCreating] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [workspaceName, setWorkspaceName] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const loadWorkspaces = async (preferId?: string | null) => {
     setLoading(true);
@@ -93,18 +101,26 @@ export default function WorkspaceProfile() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedId) return;
-    const current = workspaces.find((w) => w._id === selectedId);
-    if (!current) return;
+
     if (workspaces.length === 1) {
       toast.error("You need at least one workspace");
       return;
     }
-    if (!window.confirm(`Permanently delete "${current.name}" and everything inside it? This can't be undone.`)) return;
+
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
+    if (!selectedId) return;
+
+    const current = workspaces.find((w) => w._id === selectedId);
+    if (!current) return;
+
     try {
       await deleteWorkspace(selectedId);
       toast.success(`"${current.name}" deleted`);
+      setShowDeleteModal(false);
       localStorage.removeItem(LAST_WORKSPACE_KEY);
       await loadWorkspaces();
     } catch {
@@ -121,8 +137,6 @@ export default function WorkspaceProfile() {
   }
 
   const current = workspaces.find((w) => w._id === selectedId);
-  const documents = getPersistedDocuments().filter((item) => !item.deleted);
-  const getWorkspaceCount = (workspaceId: string) => documents.filter((item) => item.workspaceId === workspaceId).length;
 
   return (
     <div className="min-h-screen bg-gray-950 px-4 py-5 text-white sm:px-6 lg:px-8">
@@ -130,9 +144,6 @@ export default function WorkspaceProfile() {
         <section className="rounded-2xl border border-white/10 bg-gray-900 p-5 shadow-lg shadow-black/20 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-sm text-amber-300">
-                <Sparkles size={15} /> workspace
-              </div>
               <h1 className="text-2xl font-semibold leading-tight sm:text-3xl">Your cloud hub</h1>
               <p className="mt-2 max-w-2xl text-sm text-gray-400 sm:text-base">
                 Create workspaces, organize documents, and keep everything synced to your browser for a responsive experience on every device.
@@ -175,7 +186,7 @@ export default function WorkspaceProfile() {
                   <span className="rounded-full bg-gray-800 px-3 py-1 text-xs text-gray-400">{new Date(workspace.createdAt).toLocaleDateString()}</span>
                 </div>
                 <h2 className="mt-4 break-words text-lg font-semibold text-white [overflow-wrap:anywhere]">{workspace.name}</h2>
-                <p className="mt-1 text-sm text-gray-400">{getWorkspaceCount(workspace._id)} items stored in this workspace</p>
+                <p className="mt-1 text-sm text-gray-400">{workspace.itemsCount ?? 0} items stored in this workspace</p>
               </button>
             );
           })}
@@ -243,6 +254,70 @@ export default function WorkspaceProfile() {
           </div>
         </div>
       )}
+
+      {showDeleteModal && current && (
+        <WorkspaceDeleteModal
+          name={current.name}
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
+    </div>
+  );
+}
+
+function WorkspaceDeleteModal({
+  name,
+  onCancel,
+  onConfirm,
+}: {
+  name: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-gray-900 p-6 text-white shadow-2xl shadow-black/40">
+        <div className="mb-4 flex items-start gap-3">
+          <div className="rounded-xl bg-red-500/10 p-3 text-red-400">
+            <AlertTriangle size={22} />
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="text-lg font-semibold">
+              Delete workspace forever?
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-400">
+              <span className="font-semibold text-amber-300">
+                {name}
+              </span>{" "}
+              and everything inside it will be permanently deleted.
+            </p>
+
+            <p className="mt-2 text-sm text-red-400">
+              This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <button
+            onClick={onCancel}
+            className="w-full rounded-lg border border-gray-700 px-4 py-2 font-semibold text-gray-300 transition hover:border-gray-500 sm:w-auto"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={onConfirm}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-500 sm:w-auto"
+          >
+            <Trash2 size={16} />
+            <span>Delete forever</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

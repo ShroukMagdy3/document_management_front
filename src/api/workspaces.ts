@@ -11,6 +11,7 @@ export interface Workspace {
   name: string;
   userNID: string;
   createdAt: string;
+  itemsCount: number; 
 }
 
 export const createWorkspace = async (name: string) => {

@@ -3,9 +3,12 @@ const DOCUMENT_KEY = "keeply:documents";
 
 export interface PersistedWorkspace {
   _id: string;
-  name: string;
   userNID: string;
+  name: string;
+  documents: string[];
   createdAt: string;
+  updatedAt: string;
+  itemsCount: number;
 }
 
 export interface PersistedDriveItem {
@@ -48,6 +51,9 @@ const seedDefaultData = () => {
       name: "My Drive",
       userNID: "local-user",
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      documents: [],
+      itemsCount: 0,
     };
     writeJSON(WORKSPACE_KEY, [starterWorkspace]);
   }
@@ -106,6 +112,9 @@ export const createPersistedWorkspace = (name: string, userNID = "local-user"): 
     name,
     userNID,
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    documents: [],
+    itemsCount: 0,
   };
   const workspaces = getPersistedWorkspaces();
   savePersistedWorkspaces([...workspaces, workspace]);
